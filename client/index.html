@@ -1,0 +1,88 @@
+<!-- <html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="chat-messages"></div>
+    <input type="text" id="message-input" placeholder="Type a message" />
+    <button id="send-message">Send</button>
+  </div>
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  <script type="module" src="js/socket.js"></script>
+  <script type="module" src="js/chat.js"></script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <title>Chat Application</title>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+          <div style="display: flex; align-items: center; justify-content: center; cursor: pointer;">
+            <input type="text" id="user-search" placeholder="Search users..."  />
+          <i class="fa-solid fa-users-rectangle"  id="open-modal" >+</i>
+          </div>
+          
+            <h2>Chat List</h2>
+
+            <!-- <ul id="search-list">
+          </ul> -->
+          <div id="search-modal" class="search-modal">
+            <h3>Search Results</h3>
+            <ul id="search-list"></ul>
+            <button id="close-search">Close</button>
+          </div>
+
+            <ul id="chat-list">
+                <!-- Chat items will be dynamically generated here -->
+            </ul>
+
+        </aside>
+        <main id="chat-window" style="display:none;">
+             <div id="chat-user"></div>
+            <div id="chat-messages">
+                <!-- Chat messages will be displayed here -->
+            </div>
+            <div style="display: flex;">
+              <input id="message-input" type="text" placeholder="Type your message here...">
+              <button id="send-message">Send</button>
+            </div>
+        </main>
+    </div>
+
+    <div id="group-modal" class="modal">
+      <div class="modal-content">
+          <span class="close">&times;</span>
+          <h2>Create Group Chat</h2>
+          <input type="text" id="group-name" placeholder="Enter group name">
+          <div id="user-list">
+              <!-- User checkboxes will be dynamically generated here -->
+          </div>
+          <button id="create-group">Create Group</button>
+      </div>
+  </div>
+    <script type="module">
+      // Check for token in local storage
+      const token = localStorage.getItem('token');
+      if (!token) {
+          // If token is not available, redirect to login page
+          window.location.href = 'login.html';
+      }
+  </script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script type="module" src="js/socket.js"></script>
+    <script type="module" src="js/chat.js"></script>
+</body>
+</html>
+
