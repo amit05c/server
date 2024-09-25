@@ -67,7 +67,6 @@ function openChat(chatId) {
 document.getElementById("send-message").addEventListener("click", () => {
     const messageInput = document.getElementById("message-input");
     const message = messageInput.value;
-     alert(currentChatId)
     // Emit the message to the server
     socket.emit("new message", { content: message, chatId: currentChatId, sender: user._id, users: selectedChatRoom.users });
     console.log("Message sent:", message);
