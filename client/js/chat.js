@@ -38,6 +38,8 @@ function populateChatList(chats) {
             console.log("is grouped",chat);
             if(chat.isGroupChat){
                 isGroupChat = true
+            }else{
+                isGroupChat= false
             }
             selectedChatRoom = chat;
             openChat(chat._id);
@@ -262,18 +264,24 @@ function displayChatMessages(messages) {
             messageElement.classList.add("sent-message");
 
             // Display "You" for logged-in user's messages
-            const senderLabel = document.createElement("div");
-            senderLabel.classList.add("sender-label", "right-align");
-            senderLabel.textContent = "You";
-            messageContainer.appendChild(senderLabel);
+            if(isGroupChat){
+                const senderLabel = document.createElement("div");
+                senderLabel.classList.add("sender-label", "right-align");
+                senderLabel.textContent = "You";
+                messageContainer.appendChild(senderLabel);
+            }
+           
         } else {
             messageElement.classList.add("received-message");
 
             // Display the sender's name for other users
-            const senderLabel = document.createElement("div");
-            senderLabel.classList.add("sender-label", "left-align");
-            senderLabel.textContent = message.sender.name;
-            messageContainer.appendChild(senderLabel);
+            if(isGroupChat){
+                const senderLabel = document.createElement("div");
+                senderLabel.classList.add("sender-label", "left-align");
+                senderLabel.textContent = message.sender.name;
+                messageContainer.appendChild(senderLabel);
+            }
+           
         }
 
         // Add the message content
@@ -377,6 +385,11 @@ async function accessChat(userId){
   
         const res = await response.json();
         socket.emit('fetch chat details',res._id)
+        if(res.isGroupChat){
+            isGroupChat = true
+        }else{
+            isGroupChat= false
+        }
         selectedChatRoom = res
         openChat(res._id)
        
