@@ -32,6 +32,8 @@ body {
 }
 
 #chat-list li {
+  display: flex;
+  align-items: center;
   padding: 10px;
   cursor: pointer;
   border-bottom: 1px solid #ccc;
@@ -111,8 +113,6 @@ button:hover {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-
-
 
 /* Styles for the recipient info container */
 /* Container for recipient's name */
@@ -196,7 +196,7 @@ button:hover {
 /* modal */
 /* The Modal (background) */
 .modal {
-  display: none; /* Hidden by default */
+  display: none;
   position: fixed; 
   z-index: 1; 
   left: 0;
@@ -251,9 +251,9 @@ button:hover {
 
 /* search modal */
 .search-modal {
-  display: none; /* Hidden by default */
+  display: none;
   position: absolute;
-  top: 100px; /* Adjust to fit below search input */
+  top: 100px;
   left: 0;
   width: 300px;
   background-color: rgb(132, 109, 109);
@@ -299,25 +299,25 @@ button:hover {
 .toast {
   visibility: hidden;
   min-width: 250px;
-  background-color: #f44336; /* Red background for error */
-  color: #fff; /* White text */
+  background-color: #f44336;
+  color: #fff;
   text-align: center;
   border-radius: 5px;
   padding: 16px;
   position: fixed;
   z-index: 1000;
-  top: 20px; /* Position it from the top */
-  right: 20px; /* Position it from the right */
+  top: 20px;
+  right: 20px;
   font-size: 17px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  opacity: 0; /* Initially hidden */
-  transition: opacity 0.5s ease-in-out; /* Smooth transition */
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
 }
 
 /* Show the toast (visible) */
 .toast.show {
   visibility: visible;
-  opacity: 1; /* Make it visible */
+  opacity: 1;
   transition: opacity 0.5s ease-in-out;
 }
 
@@ -328,13 +328,72 @@ button:hover {
   transition: opacity 0.5s ease-in-out;
 }
 
+.profile-image {
+  width: 40px;
+  height: 40px; 
+  border-radius: 50%; 
+  margin-right: 10px;
+  object-fit: cover; 
+}
+
+
+.message-container {
+  margin-bottom: 10px;
+}
+
+.sender-label {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.right-align {
+  text-align: right;
+}
+
+.left-align {
+  text-align: left;
+}
+
+.message {
+  padding: 10px 15px;
+  margin: 5px 0;
+  max-width: fit-content;
+  border-radius: 20px;
+  word-wrap: break-word;
+}
+
+.received-message {
+  background-color: #e0e0e0;
+  text-align: left;
+  margin-right: auto;
+  border-bottom-left-radius: 0;
+}
+
+.sent-message {
+  background-color: #4a90e2;
+  color: white;
+  text-align: right;
+  margin-left: auto;
+  border-bottom-right-radius: 0;
+}
+
 
 
 @media (max-width:520px) {
   .sidebar{
     width: 35%;
+    padding: 10px;
   }
   .heading{
    font-size: 15px;
+  }
+  .profile-image {
+    width: 20px;
+    height: 20px; 
+    border-radius: 50%;
+    margin-right: 5px; 
+    object-fit: cover; 
+    background-color: white;
   }
 }

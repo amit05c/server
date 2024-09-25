@@ -3,6 +3,7 @@ import socket from './socket.js';
 // Function to populate the chat list
 let  currentChatId  = null;
 let selectedChatRoom = null;
+let isGroupChat = false;
 const baseUrl = window.location.origin;
 
 const token = localStorage.getItem('token');
@@ -10,25 +11,42 @@ const user = JSON.parse(localStorage.getItem("user"));
 function populateChatList(chats) {
     const chatList = document.getElementById("chat-list");
     chatList.innerHTML = ""; // Clear previous chat list
-    chats.forEach(chat => {
-        console.log("Chat list",chat)
-        const listItem = document.createElement("li");
-        if(chat.isGroupChat){
-            listItem.textContent = chat.chatName;
-        }else{
-            console.log("user is >>>>>>>",user._id)
-        const findRecipient = chat.users.find(el=>el._id != user._id)
-            listItem.textContent = findRecipient.name;
-        }
-        listItem.addEventListener("click", () =>{
-            selectedChatRoom = chat
-             openChat(chat._id)
 
-             
-            });
+    chats.forEach(chat => {
+        const listItem = document.createElement("li");
+        if (chat.isGroupChat) {
+            listItem.textContent = chat.chatName;
+            const profileImg = document.createElement("img");
+            profileImg.src = ' https://cdn-icons-png.flaticon.com/512/2352/2352167.png'
+            profileImg.classList.add("profile-image");
+            listItem.prepend(profileImg); 
+        } else {
+            console.log("user is >>>>>>>", chat)
+            const findRecipient = chat.users.find(el => el._id != user._id);
+            listItem.textContent = findRecipient.name;
+
+            const profileImg = document.createElement("img");
+            profileImg.src = findRecipient.pic;
+            profileImg.alt = findRecipient.name;
+            profileImg.classList.add("profile-image");
+
+            // Append the image to the list item
+            listItem.prepend(profileImg); 
+        }
+
+        listItem.addEventListener("click", () => {
+            console.log("is grouped",chat);
+            if(chat.isGroupChat){
+                isGroupChat = true
+            }
+            selectedChatRoom = chat;
+            openChat(chat._id);
+        });
+
         chatList.appendChild(listItem);
     });
 }
+
 
 // Listen for chat list from the server
 socket.on('chat_list', (chats) => {
@@ -54,7 +72,6 @@ socket.on('message recieved',(data)=>{
 
 // Function to open a chat
 function openChat(chatId) {
-    // Logic to load chat messages for the selected chat
     console.log("Opening chat:", chatId);
     currentChatId = chatId;
     const chatWindow = document.getElementById('chat-window');
@@ -67,10 +84,9 @@ function openChat(chatId) {
 document.getElementById("send-message").addEventListener("click", () => {
     const messageInput = document.getElementById("message-input");
     const message = messageInput.value;
-    // Emit the message to the server
     socket.emit("new message", { content: message, chatId: currentChatId, sender: user._id, users: selectedChatRoom.users });
     console.log("Message sent:", message);
-    messageInput.value = ""; // Clear the input after sending
+    messageInput.value = ""; 
 });
 
 
@@ -91,7 +107,7 @@ document.getElementById("user-search").addEventListener("input", async function(
           method: 'GET',
           headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`, // Include the token in the Authorization header
+              'Authorization': `Bearer ${token}`,
           },
       });
 
@@ -100,9 +116,6 @@ document.getElementById("user-search").addEventListener("input", async function(
       }
 
       const users = await response.json();
-      console.log("users ========",users)
-      // Display the users in the chat list
-    //   displayUsers(users);
          displaySearchUser(users)
   } catch (error) {
       console.error('Error fetching users:', error);
@@ -111,7 +124,7 @@ document.getElementById("user-search").addEventListener("input", async function(
 
 
 document.getElementById("chat-list").addEventListener("click", async (event) => {
-  const userId = event.target.getAttribute("data-user-id"); // Get the user ID from the clicked element
+  const userId = event.target.getAttribute("data-user-id");
 
   if (!userId) return;
 
@@ -122,7 +135,7 @@ document.getElementById("chat-list").addEventListener("click", async (event) => 
           method: 'GET',
           headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`, // Pass the token for authentication
+              'Authorization': `Bearer ${token}`,
           },
       });
 
@@ -157,56 +170,121 @@ document.getElementById("chat-list").addEventListener("click", async (event) => 
 // }
 
 
+// function displayChatMessages(messages) {
+//     localStorage.setItem('chatMessages', JSON.stringify(messages));
+  
+//     const chatMessagesDiv = document.getElementById("chat-messages");
+//     const chatUser = document.getElementById("chat-user");
+    
+//     console.log("selected chat ",selectedChatRoom)
+//     chatUser.innerHTML= ''
+//     if(selectedChatRoom.isGroupChat){
+//         chatUser.innerHTML = `
+//         <div class="recipient-info">
+//           <span class="recipient-name">${selectedChatRoom.chatName}</span>
+//         </div>
+//       `;
+//     }else{
+//         const findRecipient = selectedChatRoom.users.find(elem => elem._id != user._id);
+    
+//     // Display the recipient's name
+//     chatUser.innerHTML = `
+//       <div class="recipient-info">
+//         <span class="recipient-name">${findRecipient.name}</span>
+//       </div>
+//     `;
+//     }
+    
+    
+//     // Clear previous messages
+//     chatMessagesDiv.innerHTML = '';
+//      console.log("Group messaes",messages)
+//     // Loop through messages and display them
+//     messages.forEach((message) => {
+//         const messageElement = document.createElement("div");
+//         messageElement.classList.add("message");
+        
+//         // Differentiate between the recipient and the logged-in user's messages
+//         if (message.sender._id === user._id) {
+//             messageElement.classList.add("sent-message"); // For the logged-in user's messages
+//         } else {
+//             messageElement.classList.add("received-message"); // For the recipient's messages
+//         }
+        
+//         // Add the message content
+//         messageElement.textContent = message.content;
+//         chatMessagesDiv.appendChild(messageElement);
+//     });
+    
+//     // Scroll to the bottom after displaying messages
+//     chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+// }
+
 function displayChatMessages(messages) {
     localStorage.setItem('chatMessages', JSON.stringify(messages));
-  
+
     const chatMessagesDiv = document.getElementById("chat-messages");
     const chatUser = document.getElementById("chat-user");
-    
-    // Find the recipient (user other than the logged-in user)
-    console.log("selected chat ",selectedChatRoom)
-    chatUser.innerHTML= ''
-    if(selectedChatRoom.isGroupChat){
+
+    console.log("selected chat ", selectedChatRoom);
+    chatUser.innerHTML = '';
+
+    if (selectedChatRoom.isGroupChat) {
         chatUser.innerHTML = `
         <div class="recipient-info">
           <span class="recipient-name">${selectedChatRoom.chatName}</span>
         </div>
       `;
-    }else{
+    } else {
         const findRecipient = selectedChatRoom.users.find(elem => elem._id != user._id);
-    
-    // Display the recipient's name
-    chatUser.innerHTML = `
+
+        // Display the recipient's name
+        chatUser.innerHTML = `
       <div class="recipient-info">
         <span class="recipient-name">${findRecipient.name}</span>
       </div>
     `;
     }
-    
-    
+
     // Clear previous messages
     chatMessagesDiv.innerHTML = '';
-  
+    console.log("Group messages", messages);
+
     // Loop through messages and display them
     messages.forEach((message) => {
+        const messageContainer = document.createElement("div");
+        messageContainer.classList.add("message-container");
+
         const messageElement = document.createElement("div");
         messageElement.classList.add("message");
-        
-        // Differentiate between the recipient and the logged-in user's messages
+
         if (message.sender._id === user._id) {
-            messageElement.classList.add("sent-message"); // For the logged-in user's messages
+            messageElement.classList.add("sent-message");
+
+            // Display "You" for logged-in user's messages
+            const senderLabel = document.createElement("div");
+            senderLabel.classList.add("sender-label", "right-align");
+            senderLabel.textContent = "You";
+            messageContainer.appendChild(senderLabel);
         } else {
-            messageElement.classList.add("received-message"); // For the recipient's messages
+            messageElement.classList.add("received-message");
+
+            // Display the sender's name for other users
+            const senderLabel = document.createElement("div");
+            senderLabel.classList.add("sender-label", "left-align");
+            senderLabel.textContent = message.sender.name;
+            messageContainer.appendChild(senderLabel);
         }
-        
+
         // Add the message content
         messageElement.textContent = message.content;
-        chatMessagesDiv.appendChild(messageElement);
+        messageContainer.appendChild(messageElement);
+        chatMessagesDiv.appendChild(messageContainer);
     });
-    
-    // Scroll to the bottom after displaying messages
+
     chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
 }
+
 
 
 
@@ -298,7 +376,6 @@ async function accessChat(userId){
         }
   
         const res = await response.json();
-        console.log("users HEYYYYYYYYYYYYYY ========",res)
         socket.emit('fetch chat details',res._id)
         selectedChatRoom = res
         openChat(res._id)
@@ -307,9 +384,6 @@ async function accessChat(userId){
         console.error('Error fetching users:', error);
     }
 }
-
-
-
 
 // create new group chat
 document.addEventListener("DOMContentLoaded", function() {
