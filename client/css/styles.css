@@ -379,6 +379,17 @@ button:hover {
   border-bottom-right-radius: 0;
 }
 
+.logout{
+  /* margin-top: 10px; */
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
 
 
 @media (max-width:520px) {

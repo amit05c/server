@@ -35,9 +35,9 @@ const socketSetup = (server) => {
       // if (!chat.users) return console.log("chat.users not defined");
        const respone =  await sendMessage(newMessageRecieved)
       console.log("chat room is >>>>>>>>>>>>>>>>",newMessageRecieved);
-      newMessageRecieved.users.forEach((user) => {
+      newMessageRecieved.users.forEach(async(user) => {
         // if (user._id == newMessageRecieved.sender._id) return;
-
+        const checkFirstChat = await Chat.find({})
         socket.in(user._id).emit("message recieved", respone);
       });
       socket.emit("message recieved", respone)

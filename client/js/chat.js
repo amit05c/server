@@ -21,7 +21,7 @@ function populateChatList(chats) {
             profileImg.classList.add("profile-image");
             listItem.prepend(profileImg); 
         } else {
-            console.log("user is >>>>>>>", chat)
+            // console.log("user is >>>>>>>", chat)
             const findRecipient = chat.users.find(el => el._id != user._id);
             listItem.textContent = findRecipient.name;
 
@@ -35,7 +35,7 @@ function populateChatList(chats) {
         }
 
         listItem.addEventListener("click", () => {
-            console.log("is grouped",chat);
+            // console.log("is grouped",chat);
             if(chat.isGroupChat){
                 isGroupChat = true
             }else{
@@ -52,13 +52,11 @@ function populateChatList(chats) {
 
 // Listen for chat list from the server
 socket.on('chat_list', (chats) => {
-    console.log("Received chat list:", chats);
+    // console.log("Received chat list:", chats);
+    localStorage.setItem('chat_list', JSON.stringify(chats));
     populateChatList(chats);
 });
 
-// socket.on('chat_list', (chats) => {
-//     populateChatList(chats);
-// });
 
 socket.on('chat details',(data)=>{
     displayChatMessages(data)
@@ -67,14 +65,18 @@ socket.on('chat details',(data)=>{
 
 socket.on('message recieved',(data)=>{
     const oldMessage = JSON.parse(localStorage.getItem('chatMessages'));
-    console.log("Old message received",oldMessage)
-    const allMessages = [...oldMessage,data]
+    if(selectedChatRoom && data.chat._id == selectedChatRoom._id){
+        const allMessages = [...oldMessage,data]
     displayChatMessages(allMessages);
+    }else{
+        socket.emit("fetch chat list", user._id ); 
+    }
+    
 })
 
 // Function to open a chat
 function openChat(chatId) {
-    console.log("Opening chat:", chatId);
+    // console.log("Opening chat:", chatId);
     currentChatId = chatId;
     const chatWindow = document.getElementById('chat-window');
     chatWindow.style.display = 'block'; 
@@ -87,7 +89,7 @@ document.getElementById("send-message").addEventListener("click", () => {
     const messageInput = document.getElementById("message-input");
     const message = messageInput.value;
     socket.emit("new message", { content: message, chatId: currentChatId, sender: user._id, users: selectedChatRoom.users });
-    console.log("Message sent:", message);
+    // console.log("Message sent:", message);
     messageInput.value = ""; 
 });
 
@@ -150,27 +152,6 @@ document.getElementById("chat-list").addEventListener("click", async (event) => 
   }
 });
 
-// Function to display chat messages in the chat window
-// function displayChatMessages(messages) {
-//     localStorage.setItem('chatMessages', JSON.stringify(messages));
-//   const chatMessagesDiv = document.getElementById("chat-messages");
-//   const chatUser = document.getElementById("chat-user");
-//   const findRecipient = selectedChatRoom.users.find(elem => elem._id != user._id);
-//   chatUser.innerHTML = `
-//   <div class="recipient-info">
-//     <span class="recipient-name">${findRecipient.name}</span>
-//   </div>
-// `;
-//   console.log("messagess: ", messages)
-//   chatMessagesDiv.innerHTML = '';
-//   messages.forEach((message) => {
-//       console.log("recipient>>>>>>>>>>>>>>>>>>>>>>>>: ", message)
-//       const messageElement = document.createElement("div");
-//       messageElement.textContent = message.content; // Assuming the message object has a "content" field
-//       chatMessagesDiv.appendChild(messageElement);
-//   });
-// }
-
 
 // function displayChatMessages(messages) {
 //     localStorage.setItem('chatMessages', JSON.stringify(messages));
@@ -228,7 +209,7 @@ function displayChatMessages(messages) {
     const chatMessagesDiv = document.getElementById("chat-messages");
     const chatUser = document.getElementById("chat-user");
 
-    console.log("selected chat ", selectedChatRoom);
+    // console.log("selected chat ", selectedChatRoom);
     chatUser.innerHTML = '';
 
     if (selectedChatRoom.isGroupChat) {
@@ -250,7 +231,7 @@ function displayChatMessages(messages) {
 
     // Clear previous messages
     chatMessagesDiv.innerHTML = '';
-    console.log("Group messages", messages);
+    // console.log("Group messages", messages);
 
     // Loop through messages and display them
     messages.forEach((message) => {
@@ -293,42 +274,6 @@ function displayChatMessages(messages) {
     chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
 }
 
-
-
-
-// Function to display fetched users
-function displayUsers(users) {
-    const chatList = document.getElementById("chat-list");
-    chatList.innerHTML = ''; // Clear existing chat list
-  
-    users.forEach(user => {
-      console.log("user is >>>>>>",user)
-        const listItem = document.createElement("li");
-        listItem.textContent = user.name; // Adjust according to your user object
-        listItem.addEventListener("click", () =>{ 
-            // openChat(user._id)
-            accessChat(user._id)
-        }); 
-        chatList.appendChild(listItem);
-    });
-  }
-
-
-// Function to display fetched users
-// function displaySearchUser(users) {
-//     const chatList = document.getElementById("search-list");
-//     chatList.innerHTML = ''; // Clear existing chat list
-  
-//     users.forEach(user => {
-//       console.log("user is >>>>>>",user)
-//         const listItem = document.createElement("li");
-//         listItem.textContent = user.name; 
-//         listItem.addEventListener("click", () =>{ 
-//             accessChat(user._id)
-//         }); 
-//         chatList.appendChild(listItem);
-//     });
-//   }
 
 
 // Function to display fetched users in search modal
@@ -483,7 +428,12 @@ document.addEventListener("DOMContentLoaded", function() {
       }
     }
   });
-  
 
 
-
+// Logout
+document.querySelector(".logout").addEventListener("click", () => {
+    alert('Logging out');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = "/login.html"; // Redirect to login page
+});
